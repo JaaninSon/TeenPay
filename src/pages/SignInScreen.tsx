@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebase";
-import CustomInput from "../components/CustomInput";
+import CustomInput from "../components/common/CustomInput";
 
 export default function SignInScreen() {
   const [email, setEmail] = useState("");
@@ -56,7 +56,7 @@ export default function SignInScreen() {
         <div className="w-20 h-20 rounded-full border">
           <img className="object-cover" src="/images/teenpay_icon.png" />
         </div>
-        <h1 className="text-xl font-bold text-center text-[#1D3557]">TeenPay</h1>
+        <h1 className="text-2xl font-bold text-center text-[#1D3557]">TEENPAY</h1>
       </div>
 
       <form onSubmit={handleLogin} className="space-y-5">
@@ -106,7 +106,7 @@ export default function SignInScreen() {
           비밀번호를 잊으셨나요?
         </button>
         <div>
-          계정이 없으신가요?
+          계정이 없으신가요?&nbsp;
           <button onClick={() => navigate("/signup")} className="text-[#457B9D] underline">
             회원가입
           </button>
