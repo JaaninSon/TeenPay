@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, ReactNode } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../services/firebase";
 
 type RoleType = "parent" | "teen" | null;
@@ -26,14 +26,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
+        const userRef = doc(db, "users", firebaseUser.uid);
+        const userDoc = await getDoc(userRef);
 
-        const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setRole(userData.role);
-        } else {
-          console.warn("역할 정보가 없습니다.", firebaseUser.uid);
+        if (!userDoc.exists()) {
+          await setDoc(userRef, {
+            email: firebaseUser.email ?? "",
+            nickname: firebaseUser.displayName ?? "",
+            role: null,
+            createdAt: serverTimestamp(),
+          });
           setRole(null);
+        } else {
+          const userData = userDoc.data();
+          setRole(userData.role ?? null);
         }
       } else {
         setUser(null);
