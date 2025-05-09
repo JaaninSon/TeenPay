@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../services/firebase";
 import CustomInput from "../components/common/CustomInput";
 import RoleToggle from "../components/common/RoleToggle";
+import { toast } from "react-toastify";
 
 export default function SignUpScreen() {
   const navigate = useNavigate();
-  const [nickname, setNickname] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,7 +19,12 @@ export default function SignUpScreen() {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.");
+      toast.error("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    if (!phone.match(/^010\d{7,8}$/)) {
+      toast.error("유효한 전화번호 형식이 아닙니다. (예: 01012345678)");
       return;
     }
 
@@ -29,14 +35,16 @@ export default function SignUpScreen() {
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email,
-        nickname,
+        phone,
         role,
+        createdAt: serverTimestamp(),
       });
 
-      alert("회원가입이 완료되었습니다.");
+      toast.success("회원가입이 완료되었습니다.");
       navigate("/");
-    } catch (error: any) {
-      alert("회원가입 실패: " + error.message);
+    } catch (err: any) {
+      console.error("회원가입 실패: " + err.message);
+      toast.error("회원가입 중 오류가 발생했습니다.");
     }
   };
 
@@ -51,28 +59,33 @@ export default function SignUpScreen() {
         <div className="h-1" />
 
         <CustomInput
-          type="text"
-          placeholder="닉네임을 입력해주세요."
-          value={nickname}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value)}
-        />
-        <CustomInput
           type="email"
           placeholder="이메일을 입력해주세요."
           value={email}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+          required
+        />
+        <CustomInput
+          type="tel"
+          placeholder="전화번호를 입력해주세요. (- 없이 입력)"
+          value={phone}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
+          pattern="[0-9]*"
+          required
         />
         <CustomInput
           type="password"
           placeholder="비밀번호를 입력해주세요."
           value={password}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+          required
         />
         <CustomInput
           type="password"
           placeholder="비밀번호를 다시 한 번 입력해주세요."
           value={confirmPassword}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
+          required
         />
 
         <div className="h-1" />
