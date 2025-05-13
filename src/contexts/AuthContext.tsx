@@ -9,21 +9,25 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   role: RoleType;
+  roleLoaded: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   role: null,
+  roleLoaded: false,
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<RoleType>(null);
+  const [roleLoaded, setRoleLoaded] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setRoleLoaded(false);
       if (firebaseUser) {
         setUser(firebaseUser);
         const userRef = doc(db, "users", firebaseUser.uid);
@@ -39,11 +43,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setRole(null);
         } else {
           const userData = userDoc.data();
+          console.log("불러온 role:", userData.role);
           setRole(userData.role ?? null);
         }
+        setRoleLoaded(true);
       } else {
         setUser(null);
         setRole(null);
+        setRoleLoaded(true);
       }
       setLoading(false);
     });
@@ -51,7 +58,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  return <AuthContext.Provider value={{ user, loading, role }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, loading, role, roleLoaded }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export default AuthContext;
