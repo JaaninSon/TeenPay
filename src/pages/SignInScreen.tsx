@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -8,7 +7,6 @@ import CustomInput from "../components/common/CustomInput";
 export default function SignInScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"parent" | "teen" | "">("");
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -51,27 +49,15 @@ export default function SignInScreen() {
 
   return (
     // h-[100dvh]  h-[600px] overflow-y-auto bg-[#A8DADC]
-    <div className="w-[360px] max-h-[90vh] bg-white rounded-xl shadow-md p-6 space-y-5">
-      <div className="flex flex-col items-center space-y-2">
+    <div className="w-[360px] max-h-[90vh] bg-white rounded-xl shadow-md p-6">
+      <div className="flex flex-col items-center">
         <div className="w-20 h-20 rounded-full border">
           <img className="object-cover" src="/images/teenpay_icon.png" />
         </div>
-        <h1 className="text-2xl font-bold text-center text-[#1D3557]">TEENPAY</h1>
+        <h1 className="text-2xl font-bold text-center text-[#1D3557] mt-5">TEENPAY</h1>
       </div>
 
-      <form onSubmit={handleLogin} className="space-y-5">
-        <div className="flex justify-end">
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value as "parent" | "teen")}
-            className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-md"
-          >
-            <option value="">-- 역할을 선택해주세요 --</option>
-            <option value="parent">Parent</option>
-            <option value="teen">Teen</option>
-          </select>
-        </div>
-
+      <form onSubmit={handleLogin} className="mt-10 space-y-5">
         <CustomInput
           type="email"
           placeholder="이메일을 입력해주세요."
@@ -86,7 +72,7 @@ export default function SignInScreen() {
         />
         <button
           type="submit"
-          className="w-full py-3 bg-[#A8DADC] text-white font-semibold rounded-md"
+          className="w-full py-3 bg-[#A8DADC] text-white font-semibold rounded-xl"
         >
           로그인
         </button>
@@ -95,14 +81,17 @@ export default function SignInScreen() {
       <button
         type="button"
         onClick={handleKakaoLogin}
-        className="w-full py-3 bg-kakao text-[#3C1E1E] font-semibold text-sm rounded-md flex justify-center"
+        className="w-full h-12 py-3 bg-kakao text-[#3C1E1E] font-semibold text-sm rounded-xl flex justify-center items-center mt-5"
       >
         <img src="/images/kakao.svg" className="w-5 h-5" alt="kakao" />
         <span className="pl-3">카카오계정으로 로그인</span>
       </button>
 
       <div className="text-xs text-center text-gray-500 space-y-1">
-        <button onClick={() => navigate("/reset-password")} className="text-[#457B9D] underline">
+        <button
+          onClick={() => navigate("/reset-password")}
+          className="text-[#457B9D] underline mt-5"
+        >
           비밀번호를 잊으셨나요?
         </button>
         <div>
