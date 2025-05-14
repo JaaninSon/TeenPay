@@ -7,7 +7,7 @@ export interface Child {
   uid: string;
   nickname: string;
   phone: string;
-  balance?: number;
+  balance: number;
 }
 
 export function useChildren() {
@@ -15,21 +15,29 @@ export function useChildren() {
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchChildren = async () => {
     if (!user) return;
 
-    const fetchChildren = async () => {
-      const userRef = doc(db, "users", user.uid);
-      const snapshot = await getDoc(userRef);
+    const userRef = doc(db, "users", user.uid);
+    const snapshot = await getDoc(userRef);
 
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        setChildren(data.children || []);
-      }
+    if (snapshot.exists()) {
+      const data = snapshot.data();
 
-      setLoading(false);
-    };
+      const formattedChildren = (data.children || []).map((child: any) => ({
+        uid: child.uid,
+        nickname: child.nickname,
+        phone: child.phone,
+        balance: child.balance || 0,
+      }));
 
+      setChildren(formattedChildren);
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
     fetchChildren();
   }, [user]);
 
@@ -41,5 +49,5 @@ export function useChildren() {
     await updateDoc(userRef, { children: updated });
   };
 
-  return { children, setChildren, loading, syncChildren };
+  return { children, setChildren, loading, syncChildren, refetchChildren: fetchChildren };
 }
