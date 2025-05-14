@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 
 export default function SignUpScreen() {
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,6 +18,16 @@ export default function SignUpScreen() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!/^[가-힣]+$/.test(name.trim())) {
+      toast.error("이름은 한글만 입력 가능합니다.");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("비밀번호는 최소 6자 이상이어야 합니다.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       toast.error("비밀번호가 일치하지 않습니다.");
@@ -34,6 +45,7 @@ export default function SignUpScreen() {
 
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
+        name,
         email,
         phone,
         role,
@@ -58,6 +70,13 @@ export default function SignUpScreen() {
         <h1 className="text-2xl font-bold text-center text-[#1D3557]">TEENPAY</h1>
         <div className="h-1" />
 
+        <CustomInput
+          type="text"
+          placeholder="이름을 입력해주세요."
+          value={name}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+          required
+        />
         <CustomInput
           type="email"
           placeholder="이메일을 입력해주세요."
