@@ -1,16 +1,24 @@
 import { useNavigate } from "react-router-dom";
 import { useChildren } from "../hooks/useChildren";
+import { useParentBalance } from "../hooks/useParentBalance";
 import { handleLogout } from "../utils/logout";
+import { useEffect } from "react";
 
 export default function ParentHome() {
-  const { children, loading } = useChildren();
+  const { children, loading, refetchChildren } = useChildren();
+  const { balance: parentBalance } = useParentBalance();
   const navigate = useNavigate();
 
-  const totalBalance = children.reduce((sum, c) => sum + (c.balance || 0), 0);
+  useEffect(() => {
+    refetchChildren();
+  }, []);
 
   if (loading) return <p className="text-center mt-10">로딩중...</p>;
 
   const isDisabled = children.length === 0;
+
+  /* test */
+  console.log("부모 전체잔액 : ", parentBalance);
 
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-100 p-4">
@@ -19,7 +27,7 @@ export default function ParentHome() {
 
         <div className="bg-[#F1FAEE] p-10 rounded-md text-center mt-5">
           <p className="text-sm text-gray-500">전체 잔액</p>
-          <p className="text-2xl font-bold text-[#1D3557]">₩ {totalBalance.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-[#1D3557]">₩ {parentBalance.toLocaleString()}</p>
         </div>
 
         <div className="mt-8 mb-8">
@@ -34,13 +42,13 @@ export default function ParentHome() {
               지출내역 확인하기
             </button>
           </div>
-          <div className="max-h-40 overflow-y-auto rounded-md bg-gray-50 p-2">
+          <div className="h-[120px] overflow-y-auto rounded-xl bg-gray-50 p-2 transition-all">
             {children.length === 0 ? (
-              <div className="flex items-center justify-center h-20 text-gray-400 text-sm">
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
                 자녀를 추가해주세요
               </div>
             ) : (
-              <ul className="text-sm text-gray-700 space-y-1">
+              <ul className="text-sm text-gray-700 space-y-1 p-2">
                 {children.map((child) => (
                   <li key={child.uid}>
                     • {child.nickname} - ₩{(child.balance || 0).toLocaleString()}
