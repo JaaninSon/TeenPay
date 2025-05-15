@@ -3,8 +3,8 @@ import { auth } from "../services/firebase";
 import { NavigateFunction } from "react-router-dom";
 import { toast } from "react-toastify";
 
-export function handleLogout(navigate: NavigateFunction) {
-  signOut(auth)
+export async function handleLogout(navigate: NavigateFunction) {
+  await signOut(auth)
     .then(() => {
       localStorage.clear();
       navigate("/");
