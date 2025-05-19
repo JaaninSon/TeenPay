@@ -5,6 +5,8 @@ import { useState, useContext } from "react";
 import { toast } from "react-toastify";
 import AuthContext from "../../contexts/AuthContext";
 import { transferBalance } from "../../utils/firestore/transferBalance";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../services/firebase";
 
 export default function EnterPinScreen() {
   const { user, role } = useContext(AuthContext);
@@ -14,7 +16,9 @@ export default function EnterPinScreen() {
     selectedChild: string;
     amount: number;
     note?: string;
-    childUID: string;
+    childUID?: string;
+    bank?: string;
+    account?: string;
   };
 
   const navigate = useNavigate();
@@ -37,44 +41,50 @@ export default function EnterPinScreen() {
       return;
     }
 
-    const correctPin = "123456"; // 임시 핀번호. 사용자 pin을 Firestore에서 불러와 비교해야 함
-
-    if (pin !== correctPin) {
-      toast.error("비밀번호가 일치하지 않습니다.");
-      setPin("");
-      return;
-    }
-
     try {
-      await transferBalance({
-        fromUID: user!.uid,
-        toUID: state.childUID,
-        amount: state.amount,
-      });
+      // PIN 조회
+      const userRef = doc(db, "users", user!.uid);
+      const userSnap = await getDoc(userRef);
 
-      if (role === "parent") {
-        toast.success(
-          `₩${state.amount.toLocaleString()}를 ${state.selectedChild}에게 충전했습니다!`,
-        );
-        navigate("/parent-home");
-      } else {
-        //!  /* teen 송금 메세지 추후 확인 */
-        toast.success(
-          `₩${state.amount.toLocaleString()}를 ${state.selectedChild}에게 송금 처리되었습니다!`,
-        );
-        navigate("/teen-home");
+      if (!userSnap.exists()) throw new Error("사용자 정보를 찾을 수 없습니다.");
+
+      const userData = userSnap.data();
+      const correctPin = userData?.pin;
+
+      if (pin !== correctPin) {
+        toast.error("비밀번호가 일치하지 않습니다.");
+        setPin("");
+        return;
       }
+
+      const transferParams: any = {
+        fromUID: user!.uid,
+        amount: state.amount,
+        memo: state.note,
+        type: role === "parent" ? "deposit" : "withdraw",
+        role,
+        toUID: role === "parent" ? state.childUID : undefined,
+        bank: role === "teen" ? state.bank : undefined,
+        account: role === "teen" ? state.account : undefined,
+      };
+
+      await transferBalance(transferParams);
+
+      toast.success(
+        `₩${state.amount.toLocaleString()} ${
+          role === "parent"
+            ? `를 ${state.selectedChild}에게 충전했습니다!`
+            : `이 송금 처리되었습니다!`
+        }`,
+      );
+
+      navigate(role === "parent" ? "/parent-home" : "/teen-home");
     } catch (err: any) {
-      console.error(err.message);
+      console.error("송금/충전 에러메세지:", err.message);
       toast.error("송금 중 오류가 발생했습니다.");
     } finally {
       setPin("");
     }
-
-    /* test */
-    console.log("송금 대상:", state.selectedChild);
-    console.log("금액:", state.amount);
-    console.log("메모:", state.note);
   };
 
   return (
