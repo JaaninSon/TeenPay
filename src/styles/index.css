@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", sans-serif;
+
+  --color_white: #ffffff;
+  --color_main: #a8dadc;
+  --color_sub1: #cdb4db;
+  --color_sub2: #457b9d;
+  --color_sub3: #f1faee;
+  --color_text1: #222222;
+  --color_text2: #888888;
+  --color_bg_btn: #f3f3f3;
+}
+
+* {
+  box-sizing: border-box;
+}
