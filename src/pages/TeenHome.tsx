@@ -1,15 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { db } from "../services/firebase";
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  onSnapshot,
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import { collection, query, where, orderBy, limit, onSnapshot, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { handleLogout } from "../utils/logout";
 import AuthContext from "../contexts/AuthContext";
@@ -28,42 +19,35 @@ export default function TeenHome() {
 
     console.log("자녀 UID 확인", user.uid);
 
-    const fetchBalance = async () => {
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
+    const userRef = doc(db, "users", user.uid);
+    const unsubscribeBalance = onSnapshot(userRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
         setBalance(userData.balance || 0);
+
+        console.log("balance snapshot", docSnap.data());
       }
+    });
+
+    const q = query(
+      collection(db, "transactions"),
+      where("childUID", "==", user.uid),
+      orderBy("createdAt", "desc"),
+      limit(5),
+    );
+
+    const unsubscribeTx = onSnapshot(q, (snapshot) => {
+      const txList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTransactions(txList);
+    });
+
+    return () => {
+      unsubscribeBalance();
+      unsubscribeTx();
     };
-
-    const fetchTransactions = () => {
-      const q = query(
-        collection(db, "transactions"),
-        where("childUID", "==", user.uid),
-        orderBy("createdAt", "desc"),
-        limit(5),
-      );
-
-      return onSnapshot(q, (snapshot) => {
-        // console.log("거래 개수:", snapshot.size);
-        /* snapshot.forEach((doc) => {
-          console.log("거래 내역", doc.data());
-        }); */
-
-        const txList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setTransactions(txList);
-      });
-    };
-
-    fetchBalance();
-    const unsubscribe = fetchTransactions();
-
-    return () => unsubscribe();
   }, [user]);
 
   return (
