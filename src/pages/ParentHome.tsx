@@ -35,7 +35,7 @@ export default function ParentHome() {
             <h2 className="font-semibold text-sm">자녀별 잔액</h2>
             <button
               type="button"
-              onClick={() => navigate("/manage-children")}
+              onClick={() => navigate("/parent-children-history")}
               disabled={isDisabled}
               className="underline text-xs text-[#457B9D] hover:opacity-80 transition disabled:text-gray-400 disabled:hover:opacity-100"
             >
@@ -51,7 +51,7 @@ export default function ParentHome() {
               <ul className="text-sm text-gray-700 space-y-1 p-2">
                 {children.map((child) => (
                   <li key={child.uid}>
-                    • {child.nickname} - ₩{(child.balance || 0).toLocaleString()}
+                    • {child.nickname} - ₩ {(child.balance || 0).toLocaleString()}
                   </li>
                 ))}
               </ul>
