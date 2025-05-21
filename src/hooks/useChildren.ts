@@ -23,13 +23,26 @@ export function useChildren() {
 
     if (snapshot.exists()) {
       const data = snapshot.data();
+      const childrenInParentDoc = data.children || [];
 
-      const formattedChildren = (data.children || []).map((child: any) => ({
-        uid: child.uid,
-        nickname: child.nickname,
-        phone: child.phone,
-        balance: child.balance || 0,
-      }));
+      const formattedChildren = await Promise.all(
+        childrenInParentDoc.map(async (child: any) => {
+          const childRef = doc(db, "users", child.uid);
+          const childSnap = await getDoc(childRef);
+
+          const balance =
+            childSnap.exists() && typeof childSnap.data().balance === "number"
+              ? childSnap.data().balance
+              : 0;
+
+          return {
+            uid: child.uid,
+            nickname: child.nickname,
+            phone: child.phone,
+            balance,
+          };
+        }),
+      );
 
       setChildren(formattedChildren);
     }
