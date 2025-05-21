@@ -19,6 +19,7 @@ export default function EnterPinScreen() {
     childUID?: string;
     bank?: string;
     account?: string;
+    category?: string;
   };
 
   const navigate = useNavigate();
@@ -66,6 +67,7 @@ export default function EnterPinScreen() {
         toUID: role === "parent" ? state.childUID : undefined,
         bank: role === "teen" ? state.bank : undefined,
         account: role === "teen" ? state.account : undefined,
+        category: role === "teen" ? state.category : undefined,
       };
 
       await transferBalance(transferParams);

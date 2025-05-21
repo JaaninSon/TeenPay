@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDoc, doc } from "firebase/firestore";
 import { db } from "../../services/firebase";
@@ -14,11 +14,17 @@ function TeenSendMoneyScreen() {
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
+  const [category, setCategory] = useState("");
 
   const handleSendMoney = async () => {
     const numericAmount = parseInt(amount);
     if (!bank || !account || isNaN(numericAmount) || numericAmount <= 0) {
       toast.error("유효한 금액을 입력해주세요.");
+      return;
+    }
+
+    if (!category) {
+      toast.error("송금 카테고리를 선택해주세요.");
       return;
     }
 
@@ -35,6 +41,7 @@ function TeenSendMoneyScreen() {
             account,
             amount: numericAmount,
             note,
+            category,
           },
         });
       } else {
@@ -44,6 +51,7 @@ function TeenSendMoneyScreen() {
             account,
             amount: numericAmount,
             note,
+            category,
           },
         });
       }
@@ -65,7 +73,30 @@ function TeenSendMoneyScreen() {
         <div className="w-[360px] bg-white rounded-xl shadow-md p-6">
           <h1 className="text-2xl font-bold text-center text-[#1D3557] mt-4">송금하기</h1>
 
-          <div className="mt-10 mb-5">
+          <div className="mt-10">
+            <label className="block text-sm font-medium mb-2">카테고리</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none"
+            >
+              <option value="" className="text-gray-300">
+                카테고리 선택
+              </option>
+              <option value="식비">식비</option>
+              <option value="간식">간식</option>
+              <option value="교통">교통</option>
+              <option value="문구">문구</option>
+              <option value="도서">도서</option>
+              <option value="게임">게임</option>
+              <option value="음악">음악</option>
+              <option value="운동">운동</option>
+              <option value="OTT">OTT</option>
+              <option value="비상금">비상금</option>
+            </select>
+          </div>
+
+          <div className="mt-3">
             <label className="block text-sm font-medium mb-3">은행</label>
             <input
               type="text"
@@ -76,7 +107,7 @@ function TeenSendMoneyScreen() {
             />
           </div>
 
-          <div className="mt-3 mb-5">
+          <div className="mt-3">
             <label className="block text-sm font-medium mb-3">계좌번호</label>
             <input
               type="text"
@@ -87,7 +118,7 @@ function TeenSendMoneyScreen() {
             />
           </div>
 
-          <div className="mt-3 mb-5">
+          <div className="mt-3">
             <label className="block text-sm font-medium mb-3">송금 금액</label>
             <input
               type="number"
@@ -102,7 +133,7 @@ function TeenSendMoneyScreen() {
             <label className="block text-sm font-medium mb-3">메모 (선택)</label>
             <input
               type="text"
-              placeholder="메모 입력"
+              placeholder="메모 입력 ex) 교통비 송금"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none"
