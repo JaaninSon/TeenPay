@@ -1,7 +1,7 @@
 // 지출분석 화면
 
 import { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "../../services/firebase";
 import AuthContext from "../../contexts/AuthContext";
@@ -23,13 +23,17 @@ export default function ExpenseAnalyticsScreen() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [selectedType, setSelectedType] = useState("전체");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const passedChildUID = location.state?.childUID;
+  const targetUID = role === "teen" ? user?.uid : passedChildUID;
 
   useEffect(() => {
     if (!user?.uid) return;
 
     const q = query(
       collection(db, "transactions"),
-      where("childUID", "==", user.uid),
+      where("childUID", "==", targetUID),
       where("type", "==", "withdraw"),
       orderBy("createdAt", "desc"),
     );
@@ -40,7 +44,7 @@ export default function ExpenseAnalyticsScreen() {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [targetUID]);
 
   const categorized = transactions.map((tx) => ({
     ...tx,
@@ -72,6 +76,14 @@ export default function ExpenseAnalyticsScreen() {
     setStartDate(start);
     setEndDate(end);
   };
+
+  if (role === "parent" && !passedChildUID) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center text-sm text-gray-500">
+        자녀 정보가 전달되지 않았습니다.
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-100 p-4">
