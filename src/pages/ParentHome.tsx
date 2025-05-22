@@ -1,17 +1,39 @@
+import { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "../contexts/AuthContext";
 import { useChildren } from "../hooks/useChildren";
 import { useParentBalance } from "../hooks/useParentBalance";
 import { handleLogout } from "../utils/logout";
-import { useEffect } from "react";
+import { rechargeParentBalance } from "../utils/firestore/rechargeParentBalance";
+import { toast } from "react-toastify";
 
 export default function ParentHome() {
   const { children, loading, refetchChildren } = useChildren();
-  const { balance: parentBalance } = useParentBalance();
+  const { balance: parentBalance, refetchBalance } = useParentBalance();
   const navigate = useNavigate();
+
+  const { user, role } = useContext(AuthContext);
 
   useEffect(() => {
     refetchChildren();
   }, []);
+
+  const handleRecharge = async () => {
+    try {
+      if (role !== "parent" || !user) {
+        alert("권한이 없습니다.");
+        return;
+      }
+
+      await rechargeParentBalance(user.uid);
+      await refetchBalance();
+
+      toast.success("10만원이 충전되었습니다!");
+    } catch (err) {
+      console.error("충전 실패:", err);
+      toast.error("충전에 실패했습니다.");
+    }
+  };
 
   if (loading) return <p className="text-center mt-10">로딩중...</p>;
 
@@ -29,6 +51,13 @@ export default function ParentHome() {
           <p className="text-sm text-gray-500">전체 잔액</p>
           <p className="text-2xl font-bold text-[#1D3557]">₩ {parentBalance.toLocaleString()}</p>
         </div>
+
+        <button
+          onClick={handleRecharge}
+          className="w-full bg-yellow-400 text-white py-3 px-4 rounded-xl text-sm font-semibold mt-4"
+        >
+          충전하기
+        </button>
 
         <div className="mt-8 mb-8">
           <div className="flex items-center justify-between mb-3">

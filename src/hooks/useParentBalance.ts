@@ -8,26 +8,26 @@ export function useParentBalance() {
   const [balance, setBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
+  const fetchBalance = async () => {
+    if (!user) return;
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    // console.log("user.uid:", user.uid);
+    // console.log("parentSnap.exists:", userSnap.exists());
+    // console.log("parentSnap.data():", userSnap.data());
+
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      setBalance(userData.balance || 0);
+    }
+
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchBalance = async () => {
-      if (!user) return;
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-
-      // console.log("user.uid:", user.uid);
-      // console.log("parentSnap.exists:", userSnap.exists());
-      // console.log("parentSnap.data():", userSnap.data());
-
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        setBalance(userData.balance || 0);
-      }
-
-      setLoading(false);
-    };
-
     fetchBalance();
   }, [user]);
 
-  return { balance, loading };
+  return { balance, loading, refetchBalance: fetchBalance };
 }
