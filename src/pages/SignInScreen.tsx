@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebase";
 import CustomInput from "../components/common/CustomInput";
+import { toast } from "react-toastify";
 
 export default function SignInScreen() {
   const [email, setEmail] = useState("");
@@ -21,7 +22,7 @@ export default function SignInScreen() {
       console.log("로그인 성공", user);
       navigate("/after-login");
     } catch (error: any) {
-      alert("로그인 실패 : " + error.message);
+      toast.error("로그인 실패 : " + error.message);
       console.error("로그인 실패", error);
     }
   };
@@ -30,7 +31,7 @@ export default function SignInScreen() {
     const Kakao = (window as any)?.Kakao;
 
     if (!Kakao) {
-      alert("Kakao SDK 가 아직 로드되지 않았습니다.");
+      toast.error("Kakao SDK 가 아직 로드되지 않았습니다.");
       return;
     }
 
@@ -41,14 +42,13 @@ export default function SignInScreen() {
       console.log("✅ Kakao SDK 초기화 완료");
     }
 
-    Kakao?.Auth?.authorize({
+    Kakao.Auth?.authorize({
       redirectUri: import.meta.env.VITE_REDIRECT_URI,
       scope: "profile_nickname, account_email",
     });
   };
 
   return (
-    // h-[100dvh]  h-[600px] overflow-y-auto bg-[#A8DADC]
     <div className="w-[360px] max-h-[90vh] bg-white rounded-xl shadow-md p-6">
       <div className="flex flex-col items-center">
         <div className="w-20 h-20 rounded-full border">
