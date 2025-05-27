@@ -31,7 +31,7 @@ export async function transferBalance(params: TransferParams): Promise<void> {
     const fromSnap = await transaction.get(fromRef);
 
     if (!fromSnap.exists()) throw new Error("계좌 정보를 찾을 수 없습니다.");
-    const fromData = fromSnap.data();
+    fromData = fromSnap.data();
     console.log("fromData.name:", fromData?.name);
 
     // 잔액 체크
@@ -40,12 +40,12 @@ export async function transferBalance(params: TransferParams): Promise<void> {
 
     // 부모 -> 자녀 충전
     if (params.type === "deposit" && params.toUID) {
-      const toRef = doc(db, "users", params.toUID);
-      const toSnap = await transaction.get(toRef);
+      toRef = doc(db, "users", params.toUID);
+      toSnap = await transaction.get(toRef);
 
       if (!toSnap.exists()) throw new Error("자녀 계좌 정보를 찾을 수 없습니다.");
 
-      const toData = toSnap.data();
+      toData = toSnap.data();
 
       const toBalance = toData.balance || 0;
       transaction.update(toRef, { balance: toBalance + params.amount });
