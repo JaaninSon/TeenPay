@@ -5,6 +5,7 @@ import AfterLoginRouter from "../pages/AfterLoginRouter";
 import KakaoRedirectHandler from "../pages/KakaoRedirectHandler";
 import SelectRolePage from "../pages/SelectRolePage";
 import ParentHome from "../pages/ParentHome";
+import ResetPasswordScreen from "../pages/ResetPasswordScreen";
 import ParentSendMoneyScreen from "../components/parent/ParentSendMoneyScreen";
 import EnterPinScreen from "../components/common/EnterPinScreen";
 import SetPinScreen from "../components/common/SetPinScreen";
@@ -25,6 +26,7 @@ function Router() {
         <Route path="/after-login" element={<AfterLoginRouter />} />
         <Route path="/login/kakao" element={<KakaoRedirectHandler />} />
         <Route path="/select-role" element={<SelectRolePage />} />
+        <Route path="/reset-password" element={<ResetPasswordScreen />} />
         {/* parent */}
         <Route path="/parent-home" element={<ParentHome />} />
         <Route path="/parent-send-money" element={<ParentSendMoneyScreen />} />

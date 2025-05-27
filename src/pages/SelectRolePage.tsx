@@ -71,7 +71,7 @@ function SelectRolePage() {
 
         <button
           onClick={handleSubmit}
-          className="w-full mt-10 bg-[#457B9D] text-white py-3 rounded-xl font-semibold"
+          className="w-full my-4 bg-[#457B9D] text-white py-3 rounded-xl font-semibold"
         >
           시작하기
         </button>
